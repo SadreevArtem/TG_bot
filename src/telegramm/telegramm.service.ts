@@ -1,20 +1,18 @@
 import { Injectable } from '@nestjs/common';
-import {
-  Ctx,
-  Help,
-  InjectBot,
-  Message,
-  On,
-  Start,
-  Update,
-} from 'nestjs-telegraf';
+import { Ctx, Help, InjectBot, On, Start, Update } from 'nestjs-telegraf';
+import { FarmlendService } from 'src/farmlend/farmlend.service';
 import { TelegrafContext } from 'src/interfaces/context.interface';
+import { SkladZdorovoService } from 'src/sklad-zdorovo/sklad-zdorovo.service';
 import { Telegraf } from 'telegraf';
 
 @Injectable()
 @Update()
 export class TelegrammService {
-  constructor(@InjectBot() private bot: Telegraf<TelegrafContext>) {}
+  constructor(
+    @InjectBot() private bot: Telegraf<TelegrafContext>,
+    private readonly farmlendService: FarmlendService,
+    private readonly skladZdorovoService: SkladZdorovoService,
+  ) {}
   @Start()
   async start(@Ctx() ctx: TelegrafContext) {
     await ctx.reply('Welcome');
@@ -27,16 +25,8 @@ export class TelegrammService {
 
   @On('text')
   async onMessage(@Ctx() ctx: TelegrafContext) {
-    await ctx.reply(`You sent text ${ctx.text}`);
-  }
-
-  @On('video')
-  async onVideo(
-    @Ctx() ctx: TelegrafContext,
-    @Message('video') video: { file_id: string },
-  ) {
-    const link = await ctx.telegram.getFileLink(video.file_id);
-    await ctx.reply(JSON.stringify(link));
-    // await ctx.reply(JSON.stringify(ctx.message.video));
+    // const response = await this.skladZdorovoService.find(ctx.text);
+    const response = await this.farmlendService.find(ctx.text);
+    await ctx.reply(`You sent text ${JSON.stringify(response)}`);
   }
 }

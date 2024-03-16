@@ -6,6 +6,7 @@ import { TelegrammModule } from './telegramm/telegramm.module';
 import configuration from './config/configuration';
 import { TelegrafModule } from 'nestjs-telegraf';
 import { TelegrafConfigService } from './config/telegramm.factory';
+import { SkladZdorovoService } from './sklad-zdorovo/sklad-zdorovo.service';
 
 @Module({
   imports: [
@@ -19,6 +20,6 @@ import { TelegrafConfigService } from './config/telegramm.factory';
     TelegrammModule,
   ],
   controllers: [AppController],
-  providers: [AppService],
+  providers: [AppService, SkladZdorovoService],
 })
 export class AppModule {}
