@@ -28,19 +28,16 @@ export class FarmlendService {
         page.waitForNavigation(),
         page.goto(
           encodeURI(
-            `https://sklad-zdorovo.ru/catalog?q=${product}&sort=price_asc`,
+            `https://farmlend.ru/tyumen/search?order_dir=ASC&order_by=price&keyword=${product}`,
           ),
         ),
       ]);
-      return await page.$$eval('.goods-grid__inner .ui-card', (resultItems) => {
+
+      return await page.$$eval('.products .p-item', (resultItems) => {
         return resultItems.map((resultItem) => {
           const url = resultItem.querySelector('a')?.href;
-          const title = resultItem.querySelector(
-            'span[itemprop="name"]',
-          )?.textContent;
-          const price = resultItem.querySelector(
-            '.ui-button__content > span',
-          )?.textContent;
+          const title = resultItem.querySelector('.pi-title')?.textContent;
+          const price = resultItem.querySelector('.pi-current')?.textContent;
           return {
             url,
             title,

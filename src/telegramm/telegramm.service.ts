@@ -2,6 +2,7 @@ import { Injectable } from '@nestjs/common';
 import { Ctx, Help, InjectBot, On, Start, Update } from 'nestjs-telegraf';
 import { FarmlendService } from 'src/farmlend/farmlend.service';
 import { TelegrafContext } from 'src/interfaces/context.interface';
+import { PlanetHealthService } from 'src/planet-health/planet-health.service';
 import { SkladZdorovoService } from 'src/sklad-zdorovo/sklad-zdorovo.service';
 import { Telegraf } from 'telegraf';
 
@@ -12,6 +13,7 @@ export class TelegrammService {
     @InjectBot() private bot: Telegraf<TelegrafContext>,
     private readonly farmlendService: FarmlendService,
     private readonly skladZdorovoService: SkladZdorovoService,
+    private readonly planetHealthService: PlanetHealthService,
   ) {}
   @Start()
   async start(@Ctx() ctx: TelegrafContext) {
@@ -26,7 +28,8 @@ export class TelegrammService {
   @On('text')
   async onMessage(@Ctx() ctx: TelegrafContext) {
     // const response = await this.skladZdorovoService.find(ctx.text);
-    const response = await this.farmlendService.find(ctx.text);
+    // const response = await this.farmlendService.find(ctx.text);
+    const response = await this.planetHealthService.find(ctx.text);
     await ctx.reply(`You sent text ${JSON.stringify(response)}`);
   }
 }
