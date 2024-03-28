@@ -8,7 +8,7 @@ export class PlanetHealthService {
     try {
       const browser = await puppeteer.connect({
         browserWSEndpoint:
-          'ws://127.0.0.1:9222/devtools/browser/d6768c9d-1b02-4642-a1d2-1ec4734aee98',
+          'ws://127.0.0.1:9222/devtools/browser/4923d8fc-c9e8-46c4-a06d-8e703a1e9b1d',
       });
       const page = await browser.newPage();
       page.setDefaultNavigationTimeout(2 * 60 * 1000);

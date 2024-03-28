@@ -29,6 +29,7 @@ export class SkladZdorovoService {
           encodeURI(
             `https://sklad-zdorovo.ru/catalog?q=${product}&sort=price_asc`,
           ),
+          { waitUntil: 'domcontentloaded' },
         ),
       ]);
       return await page.$$eval('.goods-grid__inner .ui-card', (resultItems) => {

@@ -1,39 +1,42 @@
 import { Injectable } from '@nestjs/common';
 import puppeteer from 'puppeteer';
-import * as UserAgent from 'user-agents';
 
 @Injectable()
 export class FarmlendService {
   constructor() {}
 
   async find(product: string) {
-    const userAgent = new UserAgent({ deviceCategory: 'desktop' });
-    const browser = await puppeteer.launch({
-      headless: true,
-      args: [
-        '--no-sandbox',
-        '--disable-setuid-sandbox',
-        '--window-size=1920,1080',
-      ],
-      defaultViewport: {
-        width: 1920,
-        height: 1080,
-      },
-    });
     try {
+      const browser = await puppeteer.connect({
+        browserWSEndpoint:
+          'ws://127.0.0.1:9222/devtools/browser/d6768c9d-1b02-4642-a1d2-1ec4734aee98',
+      });
       const page = await browser.newPage();
-      await page.setUserAgent(userAgent.toString());
       page.setDefaultNavigationTimeout(2 * 60 * 1000);
+      await page.setRequestInterception(true);
+      page.on('request', (req) => {
+        if (
+          req.resourceType() == 'stylesheet' ||
+          req.resourceType() == 'font' ||
+          req.resourceType() == 'image'
+          // req.resourceType() == 'script'
+        ) {
+          req.abort();
+        } else {
+          req.continue();
+        }
+      });
       await Promise.all([
         page.waitForNavigation(),
         page.goto(
           encodeURI(
             `https://farmlend.ru/tyumen/search?order_dir=ASC&order_by=price&keyword=${product}`,
           ),
+          { waitUntil: 'domcontentloaded' },
         ),
       ]);
 
-      return await page.$$eval('.products .p-item', (resultItems) => {
+      const products = await page.$$eval('.products .p-item', (resultItems) => {
         return resultItems.map((resultItem) => {
           const url = resultItem.querySelector('a')?.href;
           const title = resultItem.querySelector('.pi-title')?.textContent;
@@ -45,10 +48,12 @@ export class FarmlendService {
           };
         });
       });
+      await page.close();
+      return products.slice(0, 10);
     } catch (error) {
       console.log(error);
     } finally {
-      browser.close();
+      console.log('finish');
     }
   }
 }

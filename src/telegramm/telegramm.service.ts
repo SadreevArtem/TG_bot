@@ -29,7 +29,18 @@ export class TelegrammService {
   async onMessage(@Ctx() ctx: TelegrafContext) {
     // const response = await this.skladZdorovoService.find(ctx.text);
     // const response = await this.farmlendService.find(ctx.text);
-    const response = await this.planetHealthService.find(ctx.text);
-    await ctx.reply(`You sent text ${JSON.stringify(response)}`);
+    // const response = await this.planetHealthService.find(ctx.text);
+    const response = await Promise.all([
+      this.planetHealthService.find(ctx.text),
+      this.skladZdorovoService.find(ctx.text),
+    ]);
+    const result = response
+      .flat()
+      .map((el) => ({
+        ...el,
+        price: parseInt(el.price.match(/[\d.,]+/g).join('')),
+      }))
+      .sort((a, b) => a.price - b.price);
+    await ctx.reply(`You sent text ${JSON.stringify(result)}`);
   }
 }
