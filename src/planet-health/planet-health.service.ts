@@ -39,6 +39,7 @@ export class PlanetHealthService {
           encodeURI(
             `https://planetazdorovo.ru/search/?sort=price&q=${product}`,
           ),
+          { timeout: 500 },
         ),
       ]);
       const products = await page.$$eval(
